@@ -27,6 +27,34 @@ void setup() {
   pinMode(LEFT_FORWARD, OUTPUT);
   pinMode(LEFT_REVERSE, OUTPUT);
 
+  motors(0,0);
+}
+
+void motors(int leftSpeed, int rightSpeed) {
+  analogWrite(LEFT_SPEED, min(255, abs(leftSpeed)));
+  analogWrite(RIGHT_SPEED, min(255, abs(rightSpeed)));
+
+  if(leftSpeed==0) {
+    digitalWrite(LEFT_FORWARD, OFF);
+    digitalWrite(LEFT_REVERSE, OFF);
+  } else if(leftSpeed<0) {
+    digitalWrite(LEFT_FORWARD, OFF);
+    digitalWrite(LEFT_REVERSE, ON);
+  } else {
+    digitalWrite(LEFT_FORWARD, ON);
+    digitalWrite(LEFT_REVERSE, OFF);
+  }
+
+  if(rightSpeed==0) {
+    digitalWrite(RIGHT_FORWARD, OFF);
+    digitalWrite(RIGHT_REVERSE, OFF);
+  } else if(rightSpeed<0) {
+    digitalWrite(RIGHT_FORWARD, OFF);
+    digitalWrite(RIGHT_REVERSE, ON);
+  } else {
+    digitalWrite(RIGHT_FORWARD, ON);
+    digitalWrite(RIGHT_REVERSE, OFF);
+  }
 }
 
 void loop() {
@@ -34,52 +62,25 @@ void loop() {
   int left = readLeft();
   int right = readRight();
   int diff = left - right;
+  int avg = (left + right) / 2;
+
   Serial.printf("[%4d %4d %5d] ",left,right,diff);
 
-  if (left>600 && right>600) {
+  if (avg>600) {
     Serial.println("KILL!!!");
-
-    analogWrite(LEFT_SPEED, 200);
-    analogWrite(RIGHT_SPEED, 200);
-    digitalWrite(LEFT_FORWARD, ON);
-    digitalWrite(LEFT_REVERSE, OFF);
-    digitalWrite(RIGHT_FORWARD, ON);
-    digitalWrite(RIGHT_REVERSE, OFF);
-
-  } else   if(diff < -25) {
+    motors(200,200);
+  } else if(diff < -25) {
     Serial.println("Turning LEFT");
-
-    analogWrite(LEFT_SPEED, 200);
-    analogWrite(RIGHT_SPEED, 200);
-    digitalWrite(LEFT_FORWARD, OFF);
-    digitalWrite(LEFT_REVERSE, ON);
-    digitalWrite(RIGHT_FORWARD, ON);
-    digitalWrite(RIGHT_REVERSE, OFF);
+    motors(-200,200);
   } else if (diff > 25) {
     Serial.println("Turning RIGHT");
-
-    analogWrite(LEFT_SPEED, 200);
-    analogWrite(RIGHT_SPEED, 200);
-    digitalWrite(LEFT_FORWARD, ON);
-    digitalWrite(LEFT_REVERSE, OFF);
-    digitalWrite(RIGHT_FORWARD, OFF);
-    digitalWrite(RIGHT_REVERSE, ON);
+    motors(200,-200);
   } else if (left>400 && right>400) {
     Serial.println("ATTACK!!!");
-
-    analogWrite(LEFT_SPEED, 200);
-    analogWrite(RIGHT_SPEED, 200);
-    digitalWrite(LEFT_FORWARD, ON);
-    digitalWrite(LEFT_REVERSE, OFF);
-    digitalWrite(RIGHT_FORWARD, ON);
-    digitalWrite(RIGHT_REVERSE, OFF);
-
+    motors(200,200);
   } else {
     Serial.println("Turning STOP");
-    digitalWrite(LEFT_FORWARD, OFF);
-    digitalWrite(LEFT_REVERSE, OFF);
-    digitalWrite(RIGHT_FORWARD, OFF);
-    digitalWrite(RIGHT_REVERSE, OFF);
+    motors(0,0);
   }
 
   delay(33);
