@@ -1,3 +1,9 @@
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
+
+
 #define ON 1
 #define OFF 0
 
@@ -9,9 +15,18 @@
 #define RIGHT_FORWARD 5
 #define RIGHT_REVERSE 6
 
+#define BUTTON_PIN 9
+#define NEOPIXEL_PIN 11
+#define NEOPIXEL_LEDS 1
+
 int LEN = 10;
 int leftBuf = 0;
 int rightBuf = 0;
+
+bool shouldRun = false;
+bool running = false;
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NEOPIXEL_LEDS, NEOPIXEL_PIN, NEO_RGB + NEO_KHZ800);
 
 void setup() {
   Serial.begin(38400);
@@ -28,6 +43,32 @@ void setup() {
   pinMode(LEFT_REVERSE, OUTPUT);
 
   motors(0,0);
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
+
+  pixels.begin();
+  pixels.setPixelColor(0, pixels.Color(0,150,0));
+  pixels.show();
+
+}
+
+void buttonPressed() {
+  cli(); // Disable interrupts
+  Serial.println("Button interupt FALLING (pressed)");
+  if(shouldRun) {
+    motors(0,0);
+    delay(10);
+    shouldRun = false;
+    running = false;
+    pixels.setPixelColor(0, pixels.Color(0,150,0));
+    pixels.show();
+  } else {
+      shouldRun = true;
+  }
+
+  sei(); // Enable interrupts
+
 }
 
 void motors(int leftSpeed, int rightSpeed) {
@@ -58,11 +99,28 @@ void motors(int leftSpeed, int rightSpeed) {
 }
 
 void loop() {
+  if(!running) {
+    if(shouldRun) {
+      Serial.println("Waiting to start");
+      running = true;
+      pixels.setPixelColor(0, pixels.Color(150,150,0));
+      pixels.show();
+      delay(3000);
+      pixels.setPixelColor(0, pixels.Color(150,0,0));
+      pixels.show();
+    } else {
+      Serial.println("Waiting for button");
+      delay(50);
+      return;
+    }
+  }
+
   Serial.printf("HEJ");
   int left = readLeft();
   int right = readRight();
   int diff = left - right;
   int avg = (left + right) / 2;
+
 
   Serial.printf("[%4d %4d %5d] ",left,right,diff);
 
