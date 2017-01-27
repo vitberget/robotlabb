@@ -19,17 +19,17 @@
 #define NEOPIXEL_PIN 11
 #define NEOPIXEL_LEDS 1
 
-int LEN = 10;
+int LEN = 5;
 int leftBuf = 0;
 int rightBuf = 0;
 
 bool shouldRun = false;
 bool running = false;
 
-Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NEOPIXEL_LEDS, NEOPIXEL_PIN, NEO_RGB + NEO_KHZ800);
+//Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NEOPIXEL_LEDS, NEOPIXEL_PIN, NEO_RGB + NEO_KHZ800);
 
 void setup() {
-  Serial.begin(38400);
+  //Serial.begin(38400);
 
   pinMode(A0,INPUT);
   pinMode(A1,INPUT);
@@ -42,27 +42,34 @@ void setup() {
   pinMode(LEFT_FORWARD, OUTPUT);
   pinMode(LEFT_REVERSE, OUTPUT);
 
-  motors(0,0);
+  pinMode(13, OUTPUT);
+
+  //motors(0,0);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
 
-  pixels.begin();
-  pixels.setPixelColor(0, pixels.Color(0,150,0));
-  pixels.show();
+  //delay(100);
 
+  //pixels.begin();
+  //pixels.setPixelColor(0, pixels.Color(0,150,0));
+  //pixels.show();
+
+  //delay(100);
 }
 
 void buttonPressed() {
   cli(); // Disable interrupts
-  Serial.println("Button interupt FALLING (pressed)");
+  //Serial.println("Button interupt FALLING (pressed)");
+  detachInterrupt(BUTTON_PIN);
   if(shouldRun) {
     motors(0,0);
-    delay(10);
+    delay(100);
     shouldRun = false;
     running = false;
-    pixels.setPixelColor(0, pixels.Color(0,150,0));
-    pixels.show();
+    //pixels.setPixelColor(0, pixels.Color(0,150,0));
+    //pixels.show();
+
   } else {
       shouldRun = true;
   }
@@ -72,8 +79,17 @@ void buttonPressed() {
 }
 
 void motors(int leftSpeed, int rightSpeed) {
-  analogWrite(LEFT_SPEED, min(255, abs(leftSpeed)));
-  analogWrite(RIGHT_SPEED, min(255, abs(rightSpeed)));
+  int l = leftSpeed; //min(255, abs(leftSpeed));
+  int r = rightSpeed; //min(255, abs(rightSpeed));
+  if(l>200)
+    digitalWrite(LEFT_SPEED, HIGH);
+  else
+    analogWrite(LEFT_SPEED, l);
+
+  if(r>200)
+    digitalWrite(RIGHT_SPEED, HIGH);
+  else
+    analogWrite(RIGHT_SPEED, r);
 
   if(leftSpeed==0) {
     digitalWrite(LEFT_FORWARD, OFF);
@@ -98,58 +114,67 @@ void motors(int leftSpeed, int rightSpeed) {
   }
 }
 
+bool onOff = false;
+
 void loop() {
+  onOff = !onOff;
+  digitalWrite(13, onOff ? HIGH : LOW);
+
   if(!running) {
     if(shouldRun) {
-      Serial.println("Waiting to start");
+      //Serial.println("Waiting to start");
       running = true;
-      pixels.setPixelColor(0, pixels.Color(150,150,0));
-      pixels.show();
+      //pixels.setPixelColor(0, pixels.Color(150,150,0));
+      //pixels.show();
       delay(3000);
-      pixels.setPixelColor(0, pixels.Color(150,0,0));
-      pixels.show();
+      //pixels.setPixelColor(0, pixels.Color(150,0,0));
+      //pixels.show();
     } else {
-      Serial.println("Waiting for button");
-      delay(50);
+      //Serial.println("Waiting for button");
+      delay(100);
       return;
     }
   }
 
-  Serial.printf("HEJ");
+  //Serial.printf("HEJ");
   int left = readLeft();
   int right = readRight();
   int diff = left - right;
   int avg = (left + right) / 2;
 
 
-  Serial.printf("[%4d %4d %5d] ",left,right,diff);
+  //Serial.printf("[%4d %4d %5d] ",left,right,diff);
 
   if (avg>600) {
-    Serial.println("KILL!!!");
-    motors(200,200);
+    //Serial.println("KILL!!!");
+    //motors(-190,-190);
+    motors(255,255);
   } else if(diff < -25) {
-    Serial.println("Turning LEFT");
-    motors(-200,200);
+    //Serial.println("Turning LEFT");
+    motors(0,255);
   } else if (diff > 25) {
-    Serial.println("Turning RIGHT");
-    motors(200,-200);
+    //Serial.println("Turning RIGHT");
+    motors(255,0);
   } else if (left>400 && right>400) {
-    Serial.println("ATTACK!!!");
-    motors(200,200);
+    //Serial.println("ATTACK!!!");
+    motors(255,255);
+    //motors(-190,-190);
   } else {
-    Serial.println("Turning STOP");
+    //Serial.println("Turning STOP");
     motors(0,0);
   }
 
-  delay(33);
+  delay(37);
 }
 
 int readLeft() {
+  //return analogRead(A0);
   leftBuf = (leftBuf * LEN + analogRead(A0)) / (LEN+1);
   return leftBuf;
 }
 
 int readRight() {
+  //return analogRead(A1);
   rightBuf = (rightBuf * LEN + analogRead(A1)) / (LEN+1);
   return rightBuf;
 }
