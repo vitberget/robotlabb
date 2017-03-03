@@ -1,9 +1,3 @@
-#include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
-  #include <avr/power.h>
-#endif
-
-
 #define ON 1
 #define OFF 0
 
@@ -16,8 +10,6 @@
 #define RIGHT_REVERSE 6
 
 #define BUTTON_PIN 9
-#define NEOPIXEL_PIN 11
-#define NEOPIXEL_LEDS 1
 
 int LEN = 5;
 int leftBuf = 0;
@@ -26,10 +18,10 @@ int rightBuf = 0;
 bool shouldRun = false;
 bool running = false;
 
-//Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NEOPIXEL_LEDS, NEOPIXEL_PIN, NEO_RGB + NEO_KHZ800);
+bool serial = true;
 
 void setup() {
-  //Serial.begin(38400);
+  if(serial) Serial.begin(115200);
 
   pinMode(A0,INPUT);
   pinMode(A1,INPUT);
@@ -44,7 +36,7 @@ void setup() {
 
   pinMode(13, OUTPUT);
 
-  //motors(0,0);
+   motors(0,0);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
@@ -67,9 +59,6 @@ void buttonPressed() {
     delay(100);
     shouldRun = false;
     running = false;
-    //pixels.setPixelColor(0, pixels.Color(0,150,0));
-    //pixels.show();
-
   } else {
       shouldRun = true;
   }
@@ -124,11 +113,7 @@ void loop() {
     if(shouldRun) {
       //Serial.println("Waiting to start");
       running = true;
-      //pixels.setPixelColor(0, pixels.Color(150,150,0));
-      //pixels.show();
       delay(3000);
-      //pixels.setPixelColor(0, pixels.Color(150,0,0));
-      //pixels.show();
     } else {
       //Serial.println("Waiting for button");
       delay(100);
@@ -136,45 +121,60 @@ void loop() {
     }
   }
 
-  //Serial.printf("HEJ");
   int left = readLeft();
   int right = readRight();
   int diff = left - right;
   int avg = (left + right) / 2;
 
 
-  //Serial.printf("[%4d %4d %5d] ",left,right,diff);
+  if (serial) Serial.printf("[%4d %4d %5d] ",left,right,diff);
 
-  if (avg>600) {
-    //Serial.println("KILL!!!");
-    //motors(-190,-190);
-    motors(255,255);
-  } else if(diff < -25) {
-    //Serial.println("Turning LEFT");
-    motors(0,255);
-  } else if (diff > 25) {
-    //Serial.println("Turning RIGHT");
-    motors(255,0);
-  } else if (left>400 && right>400) {
-    //Serial.println("ATTACK!!!");
-    motors(255,255);
-    //motors(-190,-190);
-  } else {
-    //Serial.println("Turning STOP");
-    motors(0,0);
+
+
+  int ll = left/32;
+  int rr = right/32;
+
+  if (serial) Serial.print("[");
+  for(int i=0; serial && i< 32; i++) {
+      Serial.print(i<=ll ? "=":"-");
+  }
+  if (serial) Serial.print("|");
+  for(int i=31; serial && i>-1; i--) {
+      Serial.print(i<=rr ? "=":"-");
   }
 
-  delay(37);
+  if(serial) Serial.print("] ");
+
+  if(ll>rr+3) {
+    if (serial) Serial.print("Left");
+    motors(-255,255);
+  } else if(rr>ll+3) {
+    if (serial) Serial.print("Right");
+    motors(255,-255);
+  } else if (ll >4 && rr>4) {
+    if (serial) Serial.print("Fwd");
+    motors(255, 255);
+  } else {
+    if (serial) Serial.print("Search");
+    if((millis()%8000)>4000) {
+      motors(255,-255);
+    } else {
+      motors(-255,255);
+    }
+  }
+
+  if (serial) Serial.println();
+  delay(7);
 }
 
 int readLeft() {
   //return analogRead(A0);
-  leftBuf = (leftBuf * LEN + analogRead(A0)) / (LEN+1);
+  leftBuf = (leftBuf * LEN + analogRead(A1)) / (LEN+1);
   return leftBuf;
 }
 
 int readRight() {
   //return analogRead(A1);
-  rightBuf = (rightBuf * LEN + analogRead(A1)) / (LEN+1);
+  rightBuf = (rightBuf * LEN + analogRead(A0)) / (LEN+1);
   return rightBuf;
 }
