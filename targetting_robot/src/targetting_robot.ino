@@ -40,14 +40,6 @@ void setup() {
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
-
-  //delay(100);
-
-  //pixels.begin();
-  //pixels.setPixelColor(0, pixels.Color(0,150,0));
-  //pixels.show();
-
-  //delay(100);
 }
 
 void buttonPressed() {
@@ -64,12 +56,12 @@ void buttonPressed() {
   }
 
   sei(); // Enable interrupts
-
 }
 
 void motors(int leftSpeed, int rightSpeed) {
-  int l = leftSpeed; //min(255, abs(leftSpeed));
-  int r = rightSpeed; //min(255, abs(rightSpeed));
+  int l = min(255, abs(leftSpeed));
+  int r = min(255, abs(rightSpeed));
+
   if(l>200)
     digitalWrite(LEFT_SPEED, HIGH);
   else
@@ -126,10 +118,7 @@ void loop() {
   int diff = left - right;
   int avg = (left + right) / 2;
 
-
   if (serial) Serial.printf("[%4d %4d %5d] ",left,right,diff);
-
-
 
   int ll = left/32;
   int rr = right/32;
@@ -168,13 +157,13 @@ void loop() {
 }
 
 int readLeft() {
-  //return analogRead(A0);
+  //return analogRead(A1);
   leftBuf = (leftBuf * LEN + analogRead(A1)) / (LEN+1);
   return leftBuf;
 }
 
 int readRight() {
-  //return analogRead(A1);
+  //return analogRead(A0);
   rightBuf = (rightBuf * LEN + analogRead(A0)) / (LEN+1);
   return rightBuf;
 }
