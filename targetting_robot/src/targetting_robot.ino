@@ -108,9 +108,9 @@ void back() {
 
 void turn180DegreesToEscapeWhiteLine() {
   if (rightLineSensorCounter <= (rightLineSensorCounterStart-rightLineSensorBack)) {
-      rotateLeft();
+    rotateLeft();
   } else {
-      back();
+    back();
   }
   //if (serial) Serial.printf("COUNTER: [%4d]", rightLineSensorCounter);
   //if (serial) Serial.println("");
@@ -135,7 +135,7 @@ void setup() {
 
   pinMode(13, OUTPUT);
 
-   motors(0,0);
+  motors(0,0);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
@@ -192,11 +192,11 @@ void loop() {
   
     if (serial) Serial.print("[");
     for(int i=0; serial && i< 32; i++) {
-        Serial.print(i<=ll ? "=":"-");
+      Serial.print(i<=ll ? "=":"-");
     }
     if (serial) Serial.print("|");
     for(int i=31; serial && i>-1; i--) {
-        Serial.print(i<=rr ? "=":"-");
+      Serial.print(i<=rr ? "=":"-");
     }
   
     if(serial) Serial.print("] ");
