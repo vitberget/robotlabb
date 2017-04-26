@@ -1,32 +1,12 @@
-#define ON 1
-#define OFF 0
-
-#define LEFT_SPEED 4
-#define LEFT_FORWARD 7
-#define LEFT_REVERSE 8
-
-#define RIGHT_SPEED 3
-#define RIGHT_FORWARD 5
-#define RIGHT_REVERSE 6
+#include "motors.h"
 
 #define BUTTON_PIN 9
-
-#define RIGHT_LINE_SENSOR A2
-#define LEFT_LINE_SENSOR A3
-
 #ifdef VERSION2
-
-#define LEFT_SPEED 4
-#define LEFT_FORWARD 9
-#define LEFT_REVERSE 8
-
-#define RIGHT_SPEED 3
-#define RIGHT_FORWARD 7
-#define RIGHT_REVERSE 6
-
 #define BUTTON_PIN 10
 #endif
 
+#define RIGHT_LINE_SENSOR A2
+#define LEFT_LINE_SENSOR A3
 
 int LEN = 5;
 int leftBuf = 0;
@@ -40,46 +20,7 @@ bool shouldRun = false;
 bool running = false;
 
 bool serial = true;
-
-void motors(int leftSpeed, int rightSpeed) {
-  int l = min(255, abs(leftSpeed));
-  int r = min(255, abs(rightSpeed));
-
-  if(l>200)
-    digitalWrite(LEFT_SPEED, HIGH);
-  else
-    analogWrite(LEFT_SPEED, l);
-
-  if(r>200)
-    digitalWrite(RIGHT_SPEED, HIGH);
-  else
-    analogWrite(RIGHT_SPEED, r);
-
-  if(leftSpeed==0) {
-    digitalWrite(LEFT_FORWARD, OFF);
-    digitalWrite(LEFT_REVERSE, OFF);
-  } else if(leftSpeed<0) {
-    digitalWrite(LEFT_FORWARD, OFF);
-    digitalWrite(LEFT_REVERSE, ON);
-  } else {
-    digitalWrite(LEFT_FORWARD, ON);
-    digitalWrite(LEFT_REVERSE, OFF);
-  }
-
-  if(rightSpeed==0) {
-    digitalWrite(RIGHT_FORWARD, OFF);
-    digitalWrite(RIGHT_REVERSE, OFF);
-  } else if(rightSpeed<0) {
-    digitalWrite(RIGHT_FORWARD, OFF);
-    digitalWrite(RIGHT_REVERSE, ON);
-  } else {
-    digitalWrite(RIGHT_FORWARD, ON);
-    digitalWrite(RIGHT_REVERSE, OFF);
-  }
-}
-
 bool onOff = false;
-
 
 void buttonPressed() {
   cli(); // Disable interrupts
@@ -139,29 +80,15 @@ void setup() {
   pinMode(RIGHT_LINE_SENSOR,INPUT);
   pinMode(LEFT_LINE_SENSOR,INPUT);
 
-  pinMode(RIGHT_SPEED, OUTPUT);
-  pinMode(RIGHT_FORWARD, OUTPUT);
-  pinMode(RIGHT_REVERSE, OUTPUT);
-
-  pinMode(LEFT_SPEED, OUTPUT);
-  pinMode(LEFT_FORWARD, OUTPUT);
-  pinMode(LEFT_REVERSE, OUTPUT);
+  motors_setup();
 
   pinMode(13, OUTPUT);
 
-  motors(0,0);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
-
-  //delay(100);
-
-  //pixels.begin();
-  //pixels.setPixelColor(0, pixels.Color(0,150,0));
-  //pixels.show();
-
-  //delay(100);
 }
+
 void loop() {
   onOff = !onOff;
   digitalWrite(13, onOff ? HIGH : LOW);
