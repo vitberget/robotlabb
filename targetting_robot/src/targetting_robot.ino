@@ -9,15 +9,29 @@
 #define RIGHT_FORWARD 5
 #define RIGHT_REVERSE 6
 
+#define BUTTON_PIN 9
+
 #define RIGHT_LINE_SENSOR A2
 #define LEFT_LINE_SENSOR A3
 
-#define BUTTON_PIN 9
+#ifdef VERSION2
+
+#define LEFT_SPEED 4
+#define LEFT_FORWARD 9
+#define LEFT_REVERSE 8
+
+#define RIGHT_SPEED 3
+#define RIGHT_FORWARD 7
+#define RIGHT_REVERSE 6
+
+#define BUTTON_PIN 10
+#endif
+
 
 int LEN = 5;
 int leftBuf = 0;
 int rightBuf = 0;
-int rightLineSensorBack = 700; 
+int rightLineSensorBack = 700;
 int rightLineSensorCounter = 0;
 int rightLineSensorCounterStart = 3500;   //1000 = 45 grader rotation (rotationstid: rightLineSensorCounterStart-rightLineSensorBack)
 int whiteColor = 600;
@@ -171,14 +185,14 @@ void loop() {
   int diff = left - right;
   int avg = (left + right) / 2;
 
- 
+
   //delay(500);
   //if (serial) Serial.printf("[%4d %4d %5d] ",left,right,diff);
   if (serial) Serial.printf("[%4d]", leftLineSensor);
   if (serial) Serial.printf("[%4d]", rightLineSensor);
   //if (serial) Serial.printf("[%4d %4d %5d] ",left,right,diff);
 
-  
+
   if (rightLineSensorCounter == 0 && (rightLineSensor < whiteColor)) {
     // Found white line
     rightLineSensorCounter = rightLineSensorCounterStart;
@@ -189,7 +203,7 @@ void loop() {
   } else {
     int ll = left/32;
     int rr = right/32;
-  
+
     if (serial) Serial.print("[");
     for(int i=0; serial && i< 32; i++) {
       Serial.print(i<=ll ? "=":"-");
@@ -198,9 +212,9 @@ void loop() {
     for(int i=31; serial && i>-1; i--) {
       Serial.print(i<=rr ? "=":"-");
     }
-  
+
     if(serial) Serial.print("] ");
-  
+
     if(ll>rr+3) {
       if (serial) Serial.print("Left");
       motors(-255,255);
@@ -218,7 +232,7 @@ void loop() {
         motors(-255,255);
       }
     }
-  
+
     if (serial) Serial.println();
     delay(7);
   }
