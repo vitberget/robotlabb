@@ -4,11 +4,17 @@
 #ifdef VERSION2
 #define BUTTON_PIN 10
 #endif
+#define LED_PIN 13
 
 #define RIGHT_LINE_SENSOR A2
 #define LEFT_LINE_SENSOR A3
 
-int LEN = 5;
+#define LEFT_DISTANCE_SENSOR A1
+#define RIGHT_DISTANCE_SENSOR A0
+
+
+const int ROLLING_AVERAGE_WIDTH = 5;
+
 int leftBuf = 0;
 int rightBuf = 0;
 int rightLineSensorBack = 700;
@@ -34,23 +40,6 @@ void buttonPressed() {
   shouldRun = !shouldRun;
   sei(); // Enable interrupts
 }
-
-int readLeft() {
-  //return analogRead(A0);
-  leftBuf = (leftBuf * LEN + analogRead(A1)) / (LEN+1);
-  return leftBuf;
-}
-
-int readRight() {
-  //return analogRead(A1);
-  rightBuf = (rightBuf * LEN + analogRead(A0)) / (LEN+1);
-  return rightBuf;
-}
-
-int readLineSensor(int sensor) {
-  return analogRead(sensor);
-}
-
 
 void rotateLeft() {
   motors(-255,255);
@@ -82,16 +71,35 @@ void setup() {
 
   motors_setup();
 
-  pinMode(13, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
 
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
 }
 
+typedef struct RollingAverage {
+  int values[ROLLING_AVERAGE_WIDTH];
+  int head = 0;
+} RollingAverage;
+
+int average(RollingAverage* ra, int value) {
+  if (ra->head >= ROLLING_AVERAGE_WIDTH)
+    ra->head = 0;
+  ra->values[ra->head++] = value;
+  int sum = 0;
+  for (int i = 0; i < ROLLING_AVERAGE_WIDTH; i++) {
+    sum = sum + ra->values[i];
+  }
+  int average = sum / ROLLING_AVERAGE_WIDTH;
+  return average;
+}
+
+RollingAverage leftAverage, rightAverage;
+
 void loop() {
   onOff = !onOff;
-  digitalWrite(13, onOff ? HIGH : LOW);
+  digitalWrite(LED_PIN, onOff ? HIGH : LOW);
 
   if(!running) {
     if(shouldRun) {
@@ -105,20 +113,11 @@ void loop() {
     }
   }
 
-  int left = readLeft();
-  int right = readRight();
-  int rightLineSensor = readLineSensor(RIGHT_LINE_SENSOR);
-  int leftLineSensor = readLineSensor(LEFT_LINE_SENSOR);
-  int diff = left - right;
-  int avg = (left + right) / 2;
+  int left = average(&leftAverage, analogRead(LEFT_DISTANCE_SENSOR));
+  int right = average(&rightAverage, analogRead(RIGHT_DISTANCE_SENSOR));
 
-
-  //delay(500);
-  //if (serial) Serial.printf("[%4d %4d %5d] ",left,right,diff);
-  if (serial) Serial.printf("[%4d]", leftLineSensor);
-  if (serial) Serial.printf("[%4d]", rightLineSensor);
-  //if (serial) Serial.printf("[%4d %4d %5d] ",left,right,diff);
-
+  int rightLineSensor = analogRead(RIGHT_LINE_SENSOR);
+  int leftLineSensor = analogRead(LEFT_LINE_SENSOR);
 
   if (rightLineSensorCounter == 0 && (rightLineSensor < whiteColor)) {
     // Found white line
@@ -130,6 +129,8 @@ void loop() {
   } else {
     int ll = left/32;
     int rr = right/32;
+
+    if (serial) Serial.printf("[%4d][%4d]", leftLineSensor, rightLineSensor);
 
     if (serial) Serial.print("[");
     for(int i=0; serial && i< 32; i++) {
