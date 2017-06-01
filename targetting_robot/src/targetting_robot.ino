@@ -28,6 +28,12 @@ bool running = false;
 bool serial = true;
 bool onOff = false;
 
+
+typedef struct RollingAverage {
+  int values[ROLLING_AVERAGE_WIDTH];
+  int head = 0;
+} RollingAverage;
+
 void buttonPressed() {
   cli(); // Disable interrupts
   //Serial.println("Button interupt FALLING (pressed)");
@@ -73,15 +79,9 @@ void setup() {
 
   pinMode(LED_PIN, OUTPUT);
 
-
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
 }
-
-typedef struct RollingAverage {
-  int values[ROLLING_AVERAGE_WIDTH];
-  int head = 0;
-} RollingAverage;
 
 int average(RollingAverage* ra, int value) {
   if (ra->head >= ROLLING_AVERAGE_WIDTH)
