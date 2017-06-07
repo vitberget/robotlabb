@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "motors.h"
 
 #define BUTTON_PIN 9
@@ -29,10 +30,7 @@ bool serial = true;
 bool onOff = false;
 
 
-typedef struct RollingAverage {
-  int values[ROLLING_AVERAGE_WIDTH];
-  int head = 0;
-} RollingAverage;
+
 
 void buttonPressed() {
   cli(); // Disable interrupts
@@ -55,6 +53,10 @@ void back() {
   motors(-255,-255);
 }
 
+typedef struct RollingAverage {
+  int values[ROLLING_AVERAGE_WIDTH];
+  int head = 0;
+} RollingAverage;
 
 void turn180DegreesToEscapeWhiteLine() {
   if (rightLineSensorCounter <= (rightLineSensorCounterStart-rightLineSensorBack)) {
