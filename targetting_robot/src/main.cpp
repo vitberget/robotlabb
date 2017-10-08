@@ -34,12 +34,7 @@ void buttonPressed() {
   cli(); // Disable interrupts
   //Serial.println("Button interupt FALLING (pressed)");
   detachInterrupt(BUTTON_PIN);
-  if(shouldRun) {
-    motors(0,0);
-    delay(100);
-    running = false;
-  }
-  shouldRun = !shouldRun;
+  shouldRun = true;
   sei(); // Enable interrupts
 }
 
@@ -105,10 +100,10 @@ void loop() {
     if(shouldRun) {
       //Serial.println("Waiting to start");
       running = true;
-      delay(3000);
+      delay(500);
     } else {
       //Serial.println("Waiting for button");
-      delay(100);
+      delay(1000);
       return;
     }
   }

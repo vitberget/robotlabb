@@ -5,13 +5,13 @@
 #define ON 1
 #define OFF 0
 
-#define LEFT_SPEED 4
-#define LEFT_FORWARD 9
-#define LEFT_REVERSE 8
+#define RIGHT_SPEED 4
+#define RIGHT_FORWARD 9
+#define RIGHT_REVERSE 8
 
-#define RIGHT_SPEED 3
-#define RIGHT_FORWARD 7
-#define RIGHT_REVERSE 6
+#define LEFT_SPEED 3
+#define LEFT_FORWARD 6
+#define LEFT_REVERSE 7
 
 
 void motors_setup();
