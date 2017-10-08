@@ -1,10 +1,8 @@
 #include "Arduino.h"
 #include "motors.h"
 
-#define BUTTON_PIN 9
-#ifdef VERSION2
+
 #define BUTTON_PIN 10
-#endif
 #define LED_PIN 13
 
 #define RIGHT_LINE_SENSOR A2
@@ -114,6 +112,20 @@ void loop() {
       return;
     }
   }
+
+  motors(0,255);
+  delay(1000);
+  motors(0,-255);
+  delay(1000);
+  motors(255,0);
+  delay(1000);
+  motors(-255,0);
+  delay(1000);
+
+  motors(0,0);
+  delay(2000);
+
+
 
   int left = average(&leftAverage, analogRead(LEFT_DISTANCE_SENSOR));
   int right = average(&rightAverage, analogRead(RIGHT_DISTANCE_SENSOR));
