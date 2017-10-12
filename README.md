@@ -9,7 +9,7 @@ Sumorobot Labb
   * Installera plugin platformio-ide https://github.com/platformio/platformio-atom-ide
   * Kör atom i ett projekt.  
 	    cd targetting_robot
-			atom .	
+			atom .
 
 ### Arduino IDE
 
@@ -20,7 +20,7 @@ Hämta Arduino IDE genom nedladdningslänk: https://www.arduino.cc/download_hand
 	cd arduino-1.8.2
 	./install.sh
 
-#### Teensy
+#### Teensy Linux
 
 	wget https://www.pjrc.com/teensy/td_136/TeensyduinoInstall.linux64
 	wget https://www.pjrc.com/teensy/49-teensy.rules
