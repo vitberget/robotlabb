@@ -1,9 +1,9 @@
 #include "Arduino.h"
 #include "motors.h"
-
+#include "oled.h"
 
 #define BUTTON_PIN 10
-#define LED_PIN 13
+//#define LED_PIN 13
 
 //#define RIGHT_LINE_SENSOR A2
 //#define LEFT_LINE_SENSOR A3
@@ -50,10 +50,12 @@ void setup() {
 
   motors_setup();
 
-  pinMode(LED_PIN, OUTPUT);
+  //pinMode(LED_PIN, OUTPUT);
 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
+
+  oled_begin();
 }
 
 int average(RollingAverage* ra, int value) {
@@ -73,7 +75,7 @@ RollingAverage leftAverage, rightAverage;
 
 void loop() {
   onOff = !onOff;
-  digitalWrite(LED_PIN, onOff ? HIGH : LOW);
+  //digitalWrite(LED_PIN, onOff ? HIGH : LOW);
 
   if(!running) {
     if(shouldRun) {
