@@ -79,9 +79,10 @@ void loop() {
 
   if(!running) {
     if(shouldRun) {
-      //Serial.println("Waiting to start");
+      oled_show("Waiting to start", 0, 0);
       running = true;
       delay(1000);
+      oled_show("Game on", 0, 0);
     } else {
       //Serial.println("Waiting for button");
       delay(200);
