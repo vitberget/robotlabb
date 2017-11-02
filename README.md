@@ -5,11 +5,11 @@ Sumorobot Labb
 ## Utvecklingsmiljö
 
 ### Atom + PlatformIO
-  * Installera atom https://atom.io/.
-  * Installera plugin platformio-ide https://github.com/platformio/platformio-atom-ide
-  * Kör atom i ett projekt.
-            cd targetting_robot
-                        atom .
+* Installera atom https://atom.io/.
+* Installera plugin platformio-ide https://github.com/platformio/platformio-atom-ide
+* Kör atom i ett projekt.
+        cd targetting_robot
+        atom .
 
 ### Arduino IDE
 
@@ -106,3 +106,7 @@ Använd normala byggkommandon (`M-x compile`) för att bygga från den Makefile 
     C2
     C3
     C4
+
+## Links
+
+* https://github.com/sparkfun/SparkFun_TeensyView_Arduino_Library
