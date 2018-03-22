@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <TeensyView.h>
 
+// Call this one in begin() { ... }
 void oled_begin();
 
 // Use 1-64 for left and right values
