@@ -56,6 +56,11 @@ void setup() {
   attachInterrupt(BUTTON_PIN, buttonPressed, FALLING);
 
   oled_begin();
+
+  oled_show("Waiting to start",
+             64, 32,
+             32, 64,
+             16, 16 );
 }
 
 int average(RollingAverage* ra, int value) {
@@ -79,10 +84,10 @@ void loop() {
 
   if(!running) {
     if(shouldRun) {
-      oled_show("Waiting to start", 0, 0);
+      oled_show("Waiting to start");
       running = true;
       delay(1000);
-      oled_show("Game on", 0, 0);
+      oled_show("Game on");
     } else {
       //Serial.println("Waiting for button");
       delay(200);
